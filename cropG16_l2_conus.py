@@ -1,17 +1,11 @@
-import matplotlib.pyplot as plt
-from netCDF4 import Dataset
 from mpl_toolkits.basemap import Basemap # Import the Basemap toolkit
 import numpy as np # Import the Numpy package
-from datetime import datetime, date
+from datetime import datetime
 from pyproj import Proj
-from multiprocessing import Pool
-from cpt_convert import loadCPT # Import the CPT convert function
-from matplotlib.colors import LinearSegmentedColormap # Linear interpolation for color maps
-import os,glob,sys
+import os,glob
 import multiprocessing
 import time
 import datetime
-import xarray as xr
 import netCDF4
 
 def main():
@@ -40,7 +34,7 @@ def main():
 def dataproc(wdir,odir,path):
 
     # Open NC file
-    nc = Dataset(path)
+    nc = netCDF4.Dataset(path)
 
     # Load data
     data_subset = nc.variables['CMI'][:][:,:]
@@ -97,6 +91,10 @@ def dataproc(wdir,odir,path):
 
     # Escribir el archivo NetCDF
     write_netcdf(lons[imin:imax,jmin:jmax], lats[imin:imax,jmin:jmax], data_subset[imin:imax,jmin:jmax]-273.15, otime, odir+'/G16_C' + str(Band) + '_' + date_save + '_' + time_save + '_subregion.nc')
+
+    nc.close()
+
+    os.system('rm -f ' + wdir + '/' + path)
 
 
 def write_netcdf(xlon, xlat, idata, rdate, outfilename):
